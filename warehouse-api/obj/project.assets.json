@@ -1,11 +1,48 @@
 {
   "version": 3,
   "targets": {
-    "net5.0": {}
+    "net5.0": {
+      "WarehouseApi.Model/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "compile": {
+          "bin/placeholder/WarehouseApi.Model.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WarehouseApi.Model.dll": {}
+        }
+      },
+      "WarehouseApi.Service/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v5.0",
+        "dependencies": {
+          "WarehouseApi.Model": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WarehouseApi.Service.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WarehouseApi.Service.dll": {}
+        }
+      }
+    }
   },
-  "libraries": {},
+  "libraries": {
+    "WarehouseApi.Model/1.0.0": {
+      "type": "project",
+      "path": "../WarehouseApi.Model/WarehouseApi.Model.csproj",
+      "msbuildProject": "../WarehouseApi.Model/WarehouseApi.Model.csproj"
+    },
+    "WarehouseApi.Service/1.0.0": {
+      "type": "project",
+      "path": "../WarehouseApi.Service/WarehouseApi.Service.csproj",
+      "msbuildProject": "../WarehouseApi.Service/WarehouseApi.Service.csproj"
+    }
+  },
   "projectFileDependencyGroups": {
-    "net5.0": []
+    "net5.0": [
+      "WarehouseApi.Service >= 1.0.0"
+    ]
   },
   "packageFolders": {
     "C:\\Users\\YuryMisak\\.nuget\\packages\\": {}
@@ -34,7 +71,11 @@
       "frameworks": {
         "net5.0": {
           "targetAlias": "net5.0",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Projects\\warehouse\\WarehouseApi.Service\\WarehouseApi.Service.csproj": {
+              "projectPath": "C:\\Projects\\warehouse\\WarehouseApi.Service\\WarehouseApi.Service.csproj"
+            }
+          }
         }
       },
       "warningProperties": {
