@@ -13,5 +13,6 @@ namespace WarehouseApi.Model
 		public bool Licensed { get; set; }
 		[JsonPropertyName("date_added")]
 		public DateTime DateAdded { get; set; }
+		public string Pic { get; set; }
 	}
 }
