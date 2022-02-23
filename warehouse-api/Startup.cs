@@ -8,10 +8,15 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using WarehouseApi.Service;
 using WarehouseApi.Service.Interface;
+using WarehouseApi.Storage;
+using WarehouseApi.Storage.Interfaces;
 
 namespace WarehouseApi
 {
@@ -29,6 +34,19 @@ namespace WarehouseApi
 		{
 			services.AddControllers();
 			services.AddTransient<IVehiclesService, VehiclesService>();
+			services.AddTransient<IVehiclesRepository, VehiclesRepository>();
+			var mappingConfig = new MapperConfiguration(mc =>
+			{
+				mc.AddProfile(new WarehouseProfile());
+			});
+
+			IMapper mapper = mappingConfig.CreateMapper();
+			services.AddSingleton(mapper);
+
+			services.AddMvc();
+			var optionsBuilder = new DbContextOptionsBuilder();
+			services.AddDbContext<WarehouseContext>(options => options.UseSqlServer(Configuration.GetConnectionString("WarehouseDatabase")));
+
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +73,16 @@ namespace WarehouseApi
 			{
 				endpoints.MapControllers();
 			});
+
+			using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+			{
+				var context = serviceScope.ServiceProvider.GetRequiredService<WarehouseContext>();
+				if (context.Database.EnsureCreated())
+				{
+					var vehiclesService = serviceScope.ServiceProvider.GetRequiredService<IVehiclesService>();
+					vehiclesService.InitializeVehicles();
+				}
+			}
 		}
 	}
 }

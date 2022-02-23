@@ -5,13 +5,23 @@ using System.Linq;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
+using AutoMapper;
 using WarehouseApi.Model;
 using WarehouseApi.Service.Interface;
+using WarehouseApi.Storage.Interfaces;
 
 namespace WarehouseApi.Service
 {
 	public class VehiclesService : IVehiclesService
 	{
+		private readonly IMapper _mapper;
+		private readonly IVehiclesRepository _vehiclesRepository;
+
+		public VehiclesService(IMapper mapper, IVehiclesRepository vehiclesRepository)
+		{
+			_mapper = mapper;
+			_vehiclesRepository = vehiclesRepository;
+		}
 		private T Read<T>(string filePath)
 		{
 			string text = File.ReadAllText(filePath);
@@ -22,8 +32,7 @@ namespace WarehouseApi.Service
 		{
 			try
 			{
-				var searchUrl =
-					$"https://www.googleapis.com/customsearch/v1?key=AIzaSyCmWH3xXxKoTjcYdI52hpamm8_cc9vQ_2o&cx=4419d3df22894e90a&q={vehicle.Make}%20{vehicle.Model}%20{vehicle.YearModel}&searchType=image&fileType=jpg&imgSize=large&alt=json";
+				var searchUrl = $"https://www.googleapis.com/customsearch/v1?key=AIzaSyCmWH3xXxKoTjcYdI52hpamm8_cc9vQ_2o&cx=4419d3df22894e90a&q={vehicle.Make}%20{vehicle.Model}%20{vehicle.YearModel}&searchType=image&fileType=jpg&imgSize=large&alt=json";
 				string json;
 				using (WebClient wc = new WebClient())
 				{
@@ -35,21 +44,26 @@ namespace WarehouseApi.Service
 			}
 			catch (Exception)
 			{
-				return
-					"https://d2uzer0pyv83wf.cloudfront.net/Pictures/480x270/8/2/8/275828_automobilipininfarinapuravisiondesignconceptmodel_la2019_223286_crop.jpeg";
+				return  "https://d2uzer0pyv83wf.cloudfront.net/Pictures/480x270/8/2/8/275828_automobilipininfarinapuravisiondesignconceptmodel_la2019_223286_crop.jpeg";
 			}
 		}
 
 		public IList<Vehicle> GetVehicles()
 		{
+			return _mapper.ProjectTo<Vehicle>(_vehiclesRepository.GeVehicles()).ToList();
+		}
+
+		public void InitializeVehicles()
+		{
 			var warehouses = Read<List<Warehouse>>("warehouses.json");
 			var vehicles = warehouses.SelectMany(x => x.Cars.Vehicles).OrderBy(x => x.DateAdded).ToList();
-			
+
 			foreach (var vehicle in vehicles)
 			{
 				vehicle.Pic = GetVehicleImage(vehicle);
+				_vehiclesRepository.AddUpdateVehicle(_mapper.Map<Storage.Models.Vehicle>(vehicle));
+
 			}
-			return vehicles;
 		}
 	}
 }

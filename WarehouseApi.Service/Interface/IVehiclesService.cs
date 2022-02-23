@@ -10,5 +10,6 @@ namespace WarehouseApi.Service.Interface
 	public interface IVehiclesService
 	{
 		IList<Vehicle> GetVehicles();
+		void InitializeVehicles();
 	}
 }
